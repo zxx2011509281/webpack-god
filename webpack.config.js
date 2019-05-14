@@ -6,9 +6,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const Webpack = require('webpack');
+
 
 module.exports = {
-    mode: 'development',  // development production
+    mode: 'production',  // development production
     optimization: {
         minimizer: [new UglifyJsPlugin(
             {
@@ -17,11 +19,12 @@ module.exports = {
                 sourceMap: true, // 映射原代码地址
               }
         ), new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
-    },
+    },    
     entry: './src/index.js', 
     output: {
         filename: "index.[hash:8].js",
-        path: path.resolve(__dirname, 'build')  
+        path: path.resolve(__dirname, 'build'),
+        publicPath: 'https:www.baidu.com/test/',
     },
     devServer: {
         port: 8080, 
@@ -38,12 +41,36 @@ module.exports = {
             }
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
+            filename: 'css/[name].css',
             chunkFilename: '[id].css',
-          }),
+        }),
+        new Webpack.ProvidePlugin({
+            $: 'jquery'
+        })
     ],
+    externals:{
+        jquery: '$'
+    },
     module: { // 模块
         rules: [
+            {
+                test: /\.html$/,
+                use: 'html-withimg-loader'
+            },
+            {
+                test: /\.(jpg|png|gif)$/,
+                use: {
+                    loader:'url-loader',
+                    options:{
+                        limit: 1,   // 小于1kb的图片会被打包成base64
+                        outputPath: 'img/'
+                    }
+                }
+            },
+            {
+                test: require.resolve('jquery'),  // 匹配 引入jquery
+                use: 'expose-loader?$' // jquery 变为 $
+            },
             {
                 test: /\.css$/,
                 use: [MiniCssExtractPlugin.loader, 'css-loader','postcss-loader'] 
