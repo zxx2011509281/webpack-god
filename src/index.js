@@ -1,24 +1,11 @@
-console.log('哈哈哈')
-require('./a.js')
-require('./css/index.css')
-require('./less/index.less')
-require('@babel/polyfill')
+var ajax = new XMLHttpRequest();
 
-const fn = ()=>{
-    console.log('es6箭头函数')
+ajax.open('get','/user');
+
+ajax.send();
+
+ajax.onreadystatechange = function () {
+   if (ajax.readyState==4 &&ajax.status==200) {
+　　　　console.log(ajax.responseText);
+  　　}
 }
-fn()
-
-@log
-class A{
-    name = 'zs'
-}
-
-let a = new A()
-console.log(a.name)
-
-function log(target){
-    console.log('target', target)
-}
-
-"nameiszs".includes('name')
